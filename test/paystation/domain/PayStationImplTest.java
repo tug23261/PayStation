@@ -212,10 +212,10 @@ public class PayStationImplTest {
     public void shouldReturnMultipleCoins() throws IllegalCoinException{
         ps.addPayment(5);
         ps.addPayment(10);
-        ps.addPayment(25);
-
+        ps.addPayment(10);
+        
         HashMap<Integer,Integer> testMap = new HashMap<>(ps.cancel());
-        assertTrue(testMap.containsKey(5) && testMap.containsKey(10) && testMap.containsKey(25));
+        assertFalse(testMap.containsKey(25));
     }
 
     @Test

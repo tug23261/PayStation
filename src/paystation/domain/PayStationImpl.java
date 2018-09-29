@@ -2,6 +2,7 @@
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Scanner;
 /**
  * Implementation of the pay station.
  *
@@ -23,6 +24,8 @@ import java.util.HashMap;
  */
 public class PayStationImpl implements PayStation {
     
+    
+    
     private int insertedSoFar;
     private int timeBought;
     HashMap<Integer,Integer> coinMap = new HashMap<>();
@@ -30,11 +33,17 @@ public class PayStationImpl implements PayStation {
     private    int count10 ;
     private    int count5 ;
     private    int deposit;
+    
+    static RateStrategy rs;
+    
 
     @Override
     public void addPayment(int coinValue)
             throws IllegalCoinException {
         switch (coinValue) {
+            case 0:{
+                
+            } break;
             case 5:{
 			count5 =+ count5 + 1;
             coinMap.put(5, count5);
@@ -51,7 +60,7 @@ public class PayStationImpl implements PayStation {
                 throw new IllegalCoinException("Invalid coin: " + coinValue);
         }
         insertedSoFar += coinValue;
-        timeBought = insertedSoFar / 5 * 2;
+        timeBought = rs.calculateRate(insertedSoFar);
     }
 
     @Override
@@ -87,4 +96,6 @@ public class PayStationImpl implements PayStation {
         return total;
 	
     } 
+    
+    
 }
