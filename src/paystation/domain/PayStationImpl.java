@@ -2,7 +2,7 @@
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Scanner;
+
 /**
  * Implementation of the pay station.
  *
@@ -41,9 +41,7 @@ public class PayStationImpl implements PayStation {
     public void addPayment(int coinValue)
             throws IllegalCoinException {
         switch (coinValue) {
-            case 0:{
-                
-            } break;
+            
             case 5:{
 			count5 =+ count5 + 1;
             coinMap.put(5, count5);
