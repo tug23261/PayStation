@@ -33,7 +33,7 @@ public class main {
                     System.out.println("\n");
                 switch (input) {
                     case 0:{
-                        System.out.println("\nThank you for using PayStation!\n");
+                        System.out.println("Thank you for using PayStation!\n");
                         exit(0);
                     }
                     case 1:{

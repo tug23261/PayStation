@@ -79,6 +79,7 @@ public class PayStationImpl implements PayStation {
         HashMap<Integer,Integer> tempMap = new HashMap<>();
         tempMap.putAll(coinMap);
         reset();
+        System.out.println(tempMap+"\n");
         return tempMap;
     }
     
