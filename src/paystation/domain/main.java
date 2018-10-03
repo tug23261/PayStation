@@ -97,7 +97,7 @@ public class main {
 
                             case 3:{
                                 int day = 0;
-                                while (day != 1 || day != 2){
+                                while (day != 1 && day != 2){
                                     System.out.println("Is it a Weekday or Weekend? \n"+
                                                         "[1] Weekday\n"+
                                                         "[2] Weekend\n");
@@ -111,6 +111,7 @@ public class main {
                                 else{
                                     rs = new alternationRate("weekend");     
                                     }
+                                
                             }break;
                         }
                     }break;
