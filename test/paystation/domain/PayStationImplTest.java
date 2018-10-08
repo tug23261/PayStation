@@ -19,10 +19,11 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import static paystation.domain.PayStationImpl.rs;
 
 public class PayStationImplTest {
 
-    PayStation ps;
+    PayStationImpl ps;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -45,10 +46,11 @@ public class PayStationImplTest {
      * Entering 5 cents should make the display report 2 minutes parking time.
      */
     @Test
-    public void shouldDisplay2MinFor5Cents()
+    public void linearShouldDisplay2MinFor5Cents()
             throws IllegalCoinException {
+        rs = new linearRate();
         ps.addPayment(5);
-        assertEquals("Should display 2 min for 5 cents",
+        assertEquals("Should display 2 min for 5 cents with linear rate strategy",
                 2, ps.readDisplay());
     }
 
@@ -56,7 +58,8 @@ public class PayStationImplTest {
      * Entering 25 cents should make the display report 10 minutes parking time.
      */
     @Test
-    public void shouldDisplay10MinFor25Cents() throws IllegalCoinException {
+    public void linearShouldDisplay10MinFor25Cents() throws IllegalCoinException {
+        rs = new linearRate();
         ps.addPayment(25);
         assertEquals("Should display 10 min for 25 cents",
                 10, ps.readDisplay());
@@ -74,8 +77,9 @@ public class PayStationImplTest {
      * Entering 10 and 25 cents should be valid and return 14 minutes parking
      */
     @Test
-    public void shouldDisplay14MinFor10And25Cents()
+    public void linearShouldDisplay14MinFor10And25Cents()
             throws IllegalCoinException {
+        rs = new linearRate();
         ps.addPayment(10);
         ps.addPayment(25);
         assertEquals("Should display 14 min for 10+25 cents",
@@ -103,8 +107,9 @@ public class PayStationImplTest {
      * Buy for 100 cents and verify the receipt
      */
     @Test
-    public void shouldReturnReceiptWhenBuy100c()
+    public void linearShouldReturnReceipt40WhenBuy100c()
             throws IllegalCoinException {
+        rs = new linearRate();
         ps.addPayment(10);
         ps.addPayment(10);
         ps.addPayment(10);
@@ -124,6 +129,7 @@ public class PayStationImplTest {
     @Test
     public void shouldClearAfterBuy()
             throws IllegalCoinException {
+        rs = new linearRate();
         ps.addPayment(25);
         ps.buy(); // I do not care about the result
         // verify that the display reads 0
@@ -147,6 +153,7 @@ public class PayStationImplTest {
     @Test
     public void shouldClearAfterCancel()
             throws IllegalCoinException {
+        rs = new linearRate();
         ps.addPayment(10);
         ps.cancel();
         assertEquals("Cancel should clear display",
@@ -161,6 +168,7 @@ public class PayStationImplTest {
      */
     @Test
     public void shouldReturnDepositOnlyAfterBuy()throws IllegalCoinException{
+        rs = new linearRate();
         ps.addPayment(5);
         ps.addPayment(25);
         //optional
@@ -178,6 +186,7 @@ public class PayStationImplTest {
     }
      @Test
     public void shouldAddToAmountReturnByEmpty()throws IllegalCoinException{
+        rs = new linearRate();
         ps.addPayment(10);
         ps.buy();
         ps.empty();
@@ -189,6 +198,7 @@ public class PayStationImplTest {
 
     @Test
     public void shouldReturnTotalToZeroAfterEmpty()throws IllegalCoinException{
+        rs = new linearRate();
         ps.addPayment(25);
         ps.buy();
         ps.empty();
@@ -197,14 +207,54 @@ public class PayStationImplTest {
     }
 
     @Test
+    public void progressiveShouldDisplay130MinFor400Cents() throws IllegalCoinException 
+    {
+        rs = new progressiveRate();
+        for (int i = 0; i < 16;i++)
+            ps.addPayment(25); // add 16 quarters
+        assertEquals("Progressive should buy 130 minutes with 400 cents",
+        ps.readDisplay(), 130);
+    }
+    
+    @Test
+    public void progressiveShouldDisplay75MinFor200Cents() throws IllegalCoinException 
+    {
+        rs = new progressiveRate();
+        for (int i = 0; i < 8;i++)
+            ps.addPayment(25); // add 8 quarters
+        assertEquals("Progressive should buy 75 minutes with 200 cents",
+        ps.readDisplay(), 75);
+    }
+    
+    @Test
+    public void alternatingShouldUseLinearOnWeekdays() throws IllegalCoinException 
+    {
+        rs = new alternationRate("weekday");
+        for (int i = 0; i < 8;i++)
+            ps.addPayment(25); // add 8 quarters
+        assertEquals("Weekday Alternating should buy 80 minutes with 200 cents",
+        ps.readDisplay(), 80);
+    }
+        @Test
+    public void alternatingShouldUseProgOnWeekend() throws IllegalCoinException 
+    {
+        rs = new alternationRate("weekend");
+        for (int i = 0; i < 8;i++)
+            ps.addPayment(25); // add 8 quarters
+        assertEquals("Weekend Alternating should buy 75 minutes with 200 cents",
+        ps.readDisplay(), 75);
+    }
+    
+    @Test
     public void shouldReturnOneCoinEntered() throws IllegalCoinException{
         //entering one coin to machine
+        rs = new linearRate();
         ps.addPayment(25);
 
         //creating a reference to the map in paystation object to access values
         HashMap<Integer,Integer> testMap = new HashMap<>(ps.cancel());
         //will test that map contains key for 25  
-        assertTrue(testMap.containsKey(25) && testMap.containsKey(25));
+        assertTrue(testMap.containsKey(25));
 
     }
 
@@ -215,18 +265,10 @@ public class PayStationImplTest {
         ps.addPayment(10);
         
         HashMap<Integer,Integer> testMap = new HashMap<>(ps.cancel());
-        assertFalse(testMap.containsKey(25));
+        assertTrue("Should return the exact coins you put in",testMap.containsKey(5) && testMap.get(5) == 1
+            && testMap.containsKey(10) && testMap.get(10) == 2);
     }
 
-    @Test
-    public void shouldReturnNickelAndDimeNotQuarter() throws IllegalCoinException{
-        ps.addPayment(5);
-        ps.addPayment(10);
-
-        HashMap<Integer,Integer> testMap = new HashMap<>(ps.cancel());
-        //test passes for 25 and would fail if I put 5 or 10 since those keys are present
-        assertFalse(testMap.containsKey(25));
-    }
 
     @Test
     public void shouldEmptyMapAfterCancel() throws IllegalCoinException{
@@ -251,21 +293,18 @@ public class PayStationImplTest {
     }
 
     /**
+    /**
      * Test of addPayment method, of class PayStationImpl.
-     */
+     
     @Test
     public void testAddPayment() throws Exception {
         System.out.println("addPayment");
-        int coinValue = 5;
-        PayStationImpl instance = new PayStationImpl();
-        instance.addPayment(coinValue);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
+        ps.addPayment(5);
     }
 
     /**
      * Test of readDisplay method, of class PayStationImpl.
-     */
+     
     @Test
     public void testReadDisplay() {
         System.out.println("readDisplay");
@@ -273,8 +312,6 @@ public class PayStationImplTest {
         int expResult = 0;
         int result = instance.readDisplay();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
     }
 
     /**
@@ -310,12 +347,7 @@ public class PayStationImplTest {
      */
     @Test
     public void testEmpty() {
-        System.out.println("empty");
-        PayStationImpl instance = new PayStationImpl();
-        int expResult = 0;
-        int result = instance.empty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
+        int result = ps.empty();
+        assertEquals("empty", 0, result);
     }
 }
