@@ -30,10 +30,10 @@ public class alternationRate implements RateStrategy {
     public int calculateRate(int insertedSoFar) {
         dayOfWeek = dayOfWeek.toLowerCase().trim();
         if (dayOfWeek.equalsIgnoreCase("weekend")){
-            calculateRate = p.calculateRate(insertedSoFar);
+            calculateRate = l.calculateRate(insertedSoFar);
         }
         else {
-            calculateRate = l.calculateRate(insertedSoFar);
+            calculateRate = p.calculateRate(insertedSoFar);
         }
         return calculateRate;
         

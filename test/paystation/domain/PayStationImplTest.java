@@ -227,21 +227,21 @@ public class PayStationImplTest {
     }
     
     @Test
-    public void alternatingShouldUseLinearOnWeekdays() throws IllegalCoinException 
-    {
-        rs = new alternationRate("weekday");
-        for (int i = 0; i < 8;i++)
-            ps.addPayment(25); // add 8 quarters
-        assertEquals("Weekday Alternating should buy 80 minutes with 200 cents",
-        ps.readDisplay(), 80);
-    }
-        @Test
-    public void alternatingShouldUseProgOnWeekend() throws IllegalCoinException 
+    public void alternatingShouldUseLinearOnWeekends() throws IllegalCoinException 
     {
         rs = new alternationRate("weekend");
         for (int i = 0; i < 8;i++)
             ps.addPayment(25); // add 8 quarters
-        assertEquals("Weekend Alternating should buy 75 minutes with 200 cents",
+        assertEquals("Weekend Alternating should buy 80 minutes with 200 cents",
+        ps.readDisplay(), 80);
+    }
+        @Test
+    public void alternatingShouldUseProgOnWeekdays() throws IllegalCoinException 
+    {
+        rs = new alternationRate("weekday");
+        for (int i = 0; i < 8;i++)
+            ps.addPayment(25); // add 8 quarters
+        assertEquals("Weekday Alternating should buy 75 minutes with 200 cents",
         ps.readDisplay(), 75);
     }
     
